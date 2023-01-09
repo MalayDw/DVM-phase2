@@ -161,6 +161,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 input.text = ""
             }
+            count = 1
         }
 
 
