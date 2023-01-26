@@ -1,42 +1,43 @@
 package com.example.calculator
 
-import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.NotificationManager.IMPORTANCE_DEFAULT
-import android.app.NotificationManager.IMPORTANCE_MIN
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.CalendarContract.CalendarEntity
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.CalendarView
+import android.os.Handler
+import android.util.TypedValue
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import com.example.calculator.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
 import org.mariuszgromada.math.mxparser.Expression
 import java.text.DecimalFormat
+import java.util.*
 
 
-var count = 0
-var openBracketCount = 0
-
+@Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
     private lateinit var dbHelper: DatabaseHelper
-    private lateinit var binding: ActivityMainBinding
 
+    private val CHANNEL_ID = "channelID"
+    private val CHANNEL_NAME = "channelName"
+    private val NOTIFICATION_ID = 0
+
+    private var count = 0
+    private var openBracketCount = 0
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        createNotificationChannel()
         dbHelper = DatabaseHelper(this)
-        binding = ActivityMainBinding.inflate(layoutInflater)
 
         clearBTN.setOnClickListener {
             input.text = ""
@@ -44,7 +45,6 @@ class MainActivity : AppCompatActivity() {
             count = 0
             openBracketCount = 0
         }
-
         openBracketBTN.setOnClickListener {
             input.text = addToInputText("(")
         }
@@ -85,10 +85,10 @@ class MainActivity : AppCompatActivity() {
             input.text = addToInputText(".")
         }
         divisionBTN.setOnClickListener {
-            input.text = addToInputText("÷") // ALT + 0247
+            input.text = addToInputText("÷")
         }
         multiplicationBTN.setOnClickListener {
-            input.text = addToInputText("×") // ALT + 0215
+            input.text = addToInputText("×")
         }
         substractionBTN.setOnClickListener {
             input.text = addToInputText("-")
@@ -96,11 +96,72 @@ class MainActivity : AppCompatActivity() {
         additionBTN.setOnClickListener {
             input.text = addToInputText("+")
         }
-        powerBTN.setOnClickListener {
+        commaBTN.setOnClickListener {
             input.text = addToInputText(",")
         }
+        timerBTN.setOnClickListener{
+            val expression = getInputExpression()
+            val seconds = Expression(expression).calculate()
+            if(seconds.isNaN()){
+                output.text = "Error"
+                output.setTextColor(ContextCompat.getColor(this, R.color.red))
+            }
+            else if(seconds < 0.0)
+            {
+                output.text = "Enter a Positive number"
+                output.setTextSize(TypedValue.COMPLEX_UNIT_SP,35F)
+                output.setTextColor(ContextCompat.getColor(this, R.color.red))
+            }
+            else {
+                val handler = Handler()
+                val intent = Intent(this, MainActivity::class.java)
+                val pendingIntent: PendingIntent? = TaskStackBuilder.create(this).run {
+                    addNextIntentWithParentStack(intent)
+                    getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+                }
+                val runnable = Runnable {
+                    val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+                        .setContentTitle("Time's UP!")
+                        .setContentText("$seconds seconds are up")
+                        .setSmallIcon(R.drawable.ic_baseline_access_alarm_24)
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(true)
+                        .setContentIntent(pendingIntent)
+                        .build()
+
+                    val notificationManager = NotificationManagerCompat.from(this)
+                    notificationManager.notify(NOTIFICATION_ID, notification)
 
 
+                    val timerInput = input.text.toString()
+                    val totalTime = "$timerInput Seconds"
+                    val time = "Timer"
+
+                    dbHelper.addCalculation(time, totalTime)
+                    dbHelper.deleteOldCalculations()
+                }
+                handler.postDelayed(runnable, (seconds * 1000).toLong())
+            }
+
+        }
+        powerBTN.setOnClickListener{
+            input.text = addToInputText("^")
+        }
+        sinBTN.setOnClickListener{
+            input.text = addToInputText("sin(")
+        }
+        cosBTN.setOnClickListener{
+            input.text = addToInputText("cos(")
+        }
+        tanBTN.setOnClickListener{
+            input.text = addToInputText("tan(")
+        }
+        logBTN.setOnClickListener{
+            input.text = addToInputText("log(")
+        }
         openSquareBTN.setOnClickListener {
             openBracketCount += 1
             if(openBracketCount == 1) {
@@ -119,15 +180,19 @@ class MainActivity : AppCompatActivity() {
                 {
                     run {
                         input.text = addToInputText("]")
-                        var arr = input.text.toString()
+                        val arr = input.text.toString()
                         val arrays = arr.split("×")
                         var arr1String = arrays[0]
+
                         arr1String = arr1String.removeRange(0,1)
                         arr1String = arr1String.dropLast(1)
+
                         val arr1 = arr1String.split(",").toTypedArray()
                         var arr2String = arrays[1]
+
                         arr2String = arr2String.removeRange(0,1)
                         arr2String = arr2String.dropLast(1)
+
                         val arr2 = arr2String.split(",").toTypedArray()
                         if(arrayMultiply(arr1,arr2) == null)
                         {
@@ -158,11 +223,12 @@ class MainActivity : AppCompatActivity() {
             val string = input.text.toString()
             if (string.isNotEmpty()) {
                 input.text = string.substring(0, string.length - 1)
+                output.text = ""
             } else {
                 input.text = ""
+                output.text = ""
             }
         }
-
 
         equalstoBTN.setOnClickListener {
             if(count == 0) {
@@ -170,12 +236,15 @@ class MainActivity : AppCompatActivity() {
             }
             val expression = input.text.toString()
             val result = output.text.toString()
+
             dbHelper.addCalculation(expression, result)
             dbHelper.deleteOldCalculations()
         }
 
         historyBTN.setOnClickListener {
-            startActivity(Intent(this, DisplayDataActivity::class.java))
+                val intent = Intent(this, DisplayDataActivity::class.java)
+                val option =  ActivityOptions.makeSceneTransitionAnimation(this).toBundle()
+                startActivity(intent, option)
         }
 }
 
@@ -185,7 +254,7 @@ class MainActivity : AppCompatActivity() {
         if(array1.size != array2.size) {
             return null
         }
-        var result = Array(array1.size) { 0 }
+        val result = Array(array1.size) { 0 }
             for (i in array1.indices) {
                 result[i] = array1[i].toInt() * array2[i].toInt()
             }
@@ -209,9 +278,16 @@ class MainActivity : AppCompatActivity() {
             if (result.isNaN()) {
                 output.text = "Error"
                 output.setTextColor(ContextCompat.getColor(this, R.color.red))
-            } else {
-                output.text = DecimalFormat("0.######").format(result).toString()
-                output.setTextColor(ContextCompat.getColor(this, R.color.red))
+            }
+            else {
+                if(result == 69.000000) {
+                    output.text = "NICE"
+                    output.setTextColor(ContextCompat.getColor(this, R.color.red))
+                }
+                else {
+                    output.text = DecimalFormat("0.######").format(result).toString()
+                    output.setTextColor(ContextCompat.getColor(this, R.color.red))
+                }
             }
         } catch (e: Exception) {
             output.text = "Error"
@@ -228,6 +304,22 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel(){
+        val channel = NotificationChannel(CHANNEL_ID,CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_DEFAULT).apply{
+            lightColor = Color.BLACK
+            enableLights(true)
+        }
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.createNotificationChannel(channel)
+    }
+
 }
+
+
+
+
+
 
 

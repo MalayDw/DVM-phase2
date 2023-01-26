@@ -1,5 +1,6 @@
 package com.example.calculator
 
+import android.annotation.SuppressLint
 import com.example.calculator.adapter.Calculation
 import com.example.calculator.adapter.HistoryAdapter
 import android.os.Bundle
@@ -9,8 +10,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_display_data.*
-
-
 
 class DisplayDataActivity : AppCompatActivity() {
 
@@ -42,8 +41,6 @@ class DisplayDataActivity : AppCompatActivity() {
                 val output = cursor.getString(cursor.getColumnIndexOrThrow("output"))
                 calculations.add(Calculation(input, output))
             }
-
-
             adapter.notifyDataSetChanged()
         }
     }

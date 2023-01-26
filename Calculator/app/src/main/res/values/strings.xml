@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Calculator</string>
-    <string name="histroy">history</string>
+    <string name="histroy">History</string>
 
 </resources>

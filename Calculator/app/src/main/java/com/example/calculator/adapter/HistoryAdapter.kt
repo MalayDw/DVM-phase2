@@ -27,4 +27,5 @@ class HistoryAdapter(private val calculations: List<Calculation>) :
 
     override fun getItemCount() = calculations.size
 }
+
 data class Calculation(val input: String, val output:String)

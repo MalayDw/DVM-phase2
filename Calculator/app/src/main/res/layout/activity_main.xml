@@ -8,10 +8,11 @@
     android:background="@color/window_background"
     tools:context=".MainActivity">
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="319dp"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@color/io_background"
         android:gravity="bottom">
@@ -20,7 +21,7 @@
             android:id="@+id/input"
             android:layout_width="393dp"
             android:layout_height="37dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:layout_marginEnd="15dp"
             android:gravity="end"
             android:textColor="#393e41"
@@ -36,8 +37,8 @@
             android:id="@+id/output"
             android:layout_width="393dp"
             android:layout_height="120dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginBottom="50dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="45dp"
             android:gravity="end"
             android:textColor="@color/orange"
             android:textSize="50sp"
@@ -51,12 +52,45 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/logBTN"
+        style="@style/Button_Style"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/powerBTN"
+        style="@style/Button_Style"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/tanBTN"
+        style="@style/Button_Style"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/cosBTN"
+        style="@style/Button_Style"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/sinBTN"
+        style="@style/Button_Style"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
 
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:stretchColumns="*">
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/timerBTN"
+            style="@style/Button_Style"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textAllCaps="false"
+            android:text="Timer"
+            android:textSize="14sp" />
         <TableRow>
 
             <androidx.appcompat.widget.AppCompatButton
@@ -65,7 +99,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="@string/histroy"
-                android:textSize="14dp" />
+                android:textSize="14sp" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/openSquareBTN"
@@ -87,7 +121,7 @@
                 android:layout_width="19dp"
                 android:layout_height="80dp"
                 android:layout_weight="1"
-                android:src="@drawable/images" />
+                android:src="@drawable/ic_baseline_backspace_24" />
 
         </TableRow>
 
@@ -223,11 +257,12 @@
                 style="@style/Button_Style"
                 android:text="0" />
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/powerBTN"
+                android:id="@+id/commaBTN"
                 android:layout_width="wrap_content"
                 android:layout_height="80dp"
                 style="@style/Button_Style"
                 android:text="," />
+
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/equalstoBTN"
                 android:layout_width="0dp"
