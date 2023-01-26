@@ -228,6 +228,7 @@ class MainActivity : AppCompatActivity() {
                 input.text = ""
                 output.text = ""
             }
+            count = 1
         }
 
         equalstoBTN.setOnClickListener {
